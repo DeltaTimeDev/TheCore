@@ -4,21 +4,21 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
-#include "Manager/Time/TCTimeEntity.h"
+#include "Manager/Time/TCTimeEntityComponent.h"
 #include "TCMainCharacter.generated.h"
 
 UCLASS()
-class THECORE_API ATCMainCharacter : public ACharacter, public ITCTimeEntity
+class THECORE_API ATCMainCharacter : public ACharacter
 {
 	GENERATED_BODY()
 
-	/** Pawn mesh: 1st person view (arms; seen only by self) */
-	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
-	class USkeletalMeshComponent* Mesh1P;
-
-	/** First person camera */
+	/** Camera boom positioning the camera behind the character */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-	class UCameraComponent* FirstPersonCameraComponent;
+		class USpringArmComponent* CameraBoom;
+
+	/** Follow camera */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+		class UCameraComponent* FollowCamera;
 
 public:
 	// Sets default values for this character's properties
@@ -39,9 +39,9 @@ public:
 
 protected:
 
-	void MoveForward(float Val);
+	void MoveForward(float Value);
 
-	void MoveRight(float Val);
+	void MoveRight(float Value);
 
 	void TurnAtRate(float Rate);
 
@@ -55,9 +55,11 @@ public:
 
 	// Called to bind functionality to input
 
-	FTransform GetTransform();  // prototype declaration
+	//FTransform GetTransform();  // prototype declaration
 
-	void SetTransform(FTransform NewTransform);  // prototype declaration
-	void SetPhysicsOff() {};
+	//void SetTransform(FTransform NewTransform);  // prototype declaration
+	//void SetPhysicsOff() {};
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UTCTimeEntityComponent* TimeEntityComponent;
 };

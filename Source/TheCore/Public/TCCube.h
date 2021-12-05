@@ -4,12 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "Manager/Time/TCTimeEntity.h"
 #include "Components/StaticMeshComponent.h"
 #include "TCCube.generated.h"
 
 UCLASS()
-class THECORE_API ATCCube : public AActor, public ITCTimeEntity
+class THECORE_API ATCCube : public AActor
 {
 	GENERATED_BODY()
 	
@@ -29,8 +28,11 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 
-	FTransform GetTransform();  // prototype declaration
-	void SetTransform(FTransform NewTransform);  // prototype declaration
-	void SetPhysicsOff();
+	//FTransform GetTransform();  // prototype declaration
+	//void SetTransform(FTransform NewTransform);  // prototype declaration
+	//void SetPhysicsOff();
+
+
+	class UTCTimeEntityComponent* TimeEntityComponent;
 
 };

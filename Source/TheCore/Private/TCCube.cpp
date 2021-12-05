@@ -2,6 +2,7 @@
 
 
 #include "TCCube.h"
+#include "Manager/Time/TCTimeEntityComponent.h"
 
 // Sets default values
 ATCCube::ATCCube()
@@ -10,6 +11,8 @@ ATCCube::ATCCube()
 	PrimaryActorTick.bCanEverTick = true;
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
 	SetRootComponent(Mesh);
+
+	TimeEntityComponent = CreateDefaultSubobject<UTCTimeEntityComponent>(TEXT("TimeEntity"));
 }
 
 // Called when the game starts or when spawned
@@ -26,18 +29,18 @@ void ATCCube::Tick(float DeltaTime)
 
 }
 
-FTransform ATCCube::GetTransform()
-{
-	return GetActorTransform();
-}
-
-void ATCCube::SetTransform(FTransform NewTransform)
-{
-	SetActorTransform(NewTransform);
-}
-
-void ATCCube::SetPhysicsOff()
-{
-	Mesh->SetSimulatePhysics(false);
-}
-
+//FTransform ATCCube::GetTransform()
+//{
+//	return GetActorTransform();
+//}
+//
+//void ATCCube::SetTransform(FTransform NewTransform)
+//{
+//	SetActorTransform(NewTransform);
+//}
+//
+//void ATCCube::SetPhysicsOff()
+//{
+//	Mesh->SetSimulatePhysics(false);
+//}
+//

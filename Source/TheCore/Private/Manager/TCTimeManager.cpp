@@ -52,12 +52,15 @@ void ATCTimeManager::StartRecording()
 	
 	for (AActor* FoundActor : FoundActors)
 	{
-		ITCTimeEntity* EntityActor = Cast<ITCTimeEntity>(FoundActor);
-		
-		if (EntityActor)
+		TArray<UActorComponent*> TimeEntityComponents = FoundActor->GetComponentsByClass(UTCTimeEntityComponent::StaticClass());
+
+		if (TimeEntityComponents.Num()>0)
 		{
+			UTCTimeEntityComponent* TimeComponent = Cast<UTCTimeEntityComponent>(TimeEntityComponents[0]);
+
 			FTimeEntity* TimeEntity = new FTimeEntity();
-			TimeEntity->Entity = EntityActor;
+			TimeEntity->TimeEntityComponent = TimeComponent;
+			TimeEntity->TimeEntityComponent->IsRecording = true;
 			TimeSession.TimeEntities.Add(TimeEntity);
 		}
 	}
@@ -84,7 +87,7 @@ void ATCTimeManager::RecordFrame()
 {
 	for (FTimeEntity* TimeEntity : TimeSession.TimeEntities)
 	{
-		TimeEntity->GetSnapShot();
+		TimeEntity->RecordFrame();
 	}
 
 	TimeSession.FrameCount++;
@@ -96,8 +99,9 @@ void ATCTimeManager::PlayFrame()
 	{
 		for (FTimeEntity* TimeEntity : TimeSession.TimeEntities)
 		{
-			TimeEntity->Entity->SetPhysicsOff();
-			TimeEntity->ApplySnapShot(CurrentPlayingFrame);
+			TimeEntity->TimeEntityComponent->SetPhysicsOff();
+			TimeEntity->PlayFrame(CurrentPlayingFrame);
+			TimeEntity->TimeEntityComponent->IsRecording = false;
 		}
 		CurrentPlayingFrame++;
 	}

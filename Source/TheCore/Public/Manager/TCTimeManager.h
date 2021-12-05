@@ -4,8 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "TCMainCharacter.h"
+#include "Manager/Time/TCTimeEntityComponent.h"
 #include "TCTimeManager.generated.h"
+
+
 
 USTRUCT(BlueprintType)
 struct FTimeEntity
@@ -13,19 +15,20 @@ struct FTimeEntity
 	GENERATED_BODY()
 
 
-	ITCTimeEntity* Entity;//Canchange character t entity
+	UTCTimeEntityComponent* TimeEntityComponent;//Canchange character t entity
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Test Variables")
-		TArray<FTransform> RecordedPositions;
+		TArray<FTimeFrame> RecordedFrames;
 
-	void GetSnapShot()
+	void RecordFrame()
 	{
-		RecordedPositions.Add(Entity->GetTransform());
+		FTimeFrame Frame = TimeEntityComponent->SnapShootFrame();
+		RecordedFrames.Add(Frame);
 	}
 
-	void ApplySnapShot(int32 index)
+	void PlayFrame(int32 index)
 	{
-		Entity->SetTransform(RecordedPositions[index]);
+		TimeEntityComponent->ApplyFrame(RecordedFrames[index]);
 	}
 };
 
