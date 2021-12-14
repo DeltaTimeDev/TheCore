@@ -53,13 +53,13 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	// Called to bind functionality to input
-
-	//FTransform GetTransform();  // prototype declaration
-
-	//void SetTransform(FTransform NewTransform);  // prototype declaration
-	//void SetPhysicsOff() {};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UTCTimeEntityComponent* TimeEntityComponent;
+
+public:
+	void StartAimFocus();
+	void EndAimFocus();
+
+	bool IsAiming = false;
 };
