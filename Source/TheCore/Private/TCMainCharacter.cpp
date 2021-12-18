@@ -8,6 +8,7 @@
 #include "Camera/CameraComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "DrawDebugHelpers.h"
+#include "Teleportation/TCTeleportPoint.h"
 
 // Sets default values
 ATCMainCharacter::ATCMainCharacter()
@@ -67,60 +68,36 @@ void ATCMainCharacter::Tick(float DeltaTime)
 
 	if (IsAiming)
 	{
-		FHitResult OutHit;
-		FVector Start = FollowCamera->GetComponentLocation();
+		// create tarray for hit results
+		TArray<FHitResult> OutHits;
 
-		Start.Z += 50.f;
-		//Start.Y += 200.f;
+		// start and end locations
+		FVector SweepStart = GetActorLocation();
+		FVector SweepEnd = GetActorLocation() + GetActorForwardVector()*1500;
 
-		FVector ForwardVector = FollowCamera->GetForwardVector();
-		Start += ForwardVector * 200;
-		ForwardVector.Z = 0;
-		FVector End = ((ForwardVector * 4500.f) + Start);
-		FCollisionQueryParams CollisionParams;
-		CollisionParams.AddIgnoredComponent(GetCapsuleComponent());
+		// create a collision sphere
+		FCollisionShape MyColSphere = FCollisionShape::MakeSphere(500.0f);
 
-		//DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, 1, 0, 5);
+		// draw collision sphere
+		DrawDebugSphere(GetWorld(), SweepEnd, MyColSphere.GetSphereRadius(), 50, FColor::Purple, false,0.05f);
+		DrawDebugSphere(GetWorld(), SweepStart, MyColSphere.GetSphereRadius(), 50, FColor::Purple, false, 0.05f);
 
-		FCollisionQueryParams TraceParams(FName(TEXT("InteractTrace")), true, NULL);
-		TraceParams.bTraceComplex = true;
-		TraceParams.bReturnPhysicalMaterial = true;
-		TraceParams.AddIgnoredActor(this);
+		// check if something got hit in the sweep
+		bool isHit = GetWorld()->SweepMultiByChannel(OutHits, SweepStart, SweepEnd, FQuat::Identity, ECC_WorldStatic, MyColSphere);
 
-		//Re-initialize hit info
-		FHitResult HitDetails = FHitResult(ForceInit);
-
-
-		bool bIsHit = GetWorld()->LineTraceSingleByChannel(
-			HitDetails,      // FHitResult object that will be populated with hit info
-			Start,      // starting position
-			End,        // end position
-			ECC_Camera,  // collision channel - 3rd custom one
-			TraceParams      // additional trace settings
-		);
-
-		FVector LocationToGetOverlap;
-
-		if (bIsHit)
+		if (isHit)
 		{
-			LocationToGetOverlap = HitDetails.Location;
-		}
-		else
-		{
-			// we missed
-			LocationToGetOverlap = End;
-		}
-
-
-		TArray<TEnumAsByte<EObjectTypeQuery>> traceObjectTypes;
-		traceObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_Camera));
-		TArray<AActor*> IgnoredActors;
-		TArray<AActor*> OverlappedActors;
-		DrawDebugSphere(GetWorld(), LocationToGetOverlap, 300, 10, FColor(181, 0, 0), false, 1, 0, 2);
-		UKismetSystemLibrary::SphereOverlapActors(GetWorld(), LocationToGetOverlap, 300, traceObjectTypes, AActor::GetClass(), IgnoredActors, OverlappedActors);
-		for (AActor* OA : OverlappedActors)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Overlapped %s"), *OA->GetName());
+			// loop through TArray
+			for (auto& Hit : OutHits)
+			{
+				if (GEngine)
+				{
+					if (Hit.Actor->IsA(ATCTeleportPoint::StaticClass()))
+					{
+						GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("Hit Result: %s"), *Hit.Actor->GetName()));
+					}
+				}
+			}
 		}
 		
 	}
