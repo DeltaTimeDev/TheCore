@@ -13,5 +13,7 @@ UCLASS()
 class THECORE_API UTCAbilitySystemComponent : public UAbilitySystemComponent
 {
 	GENERATED_BODY()
-	
+
+public:
+	bool CharacterAbilitiesGiven = false;
 };

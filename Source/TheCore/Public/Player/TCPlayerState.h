@@ -11,14 +11,11 @@
  * 
  */
 UCLASS()
-class THECORE_API ATCPlayerState : public APlayerState, public IAbilitySystemInterface
+class THECORE_API ATCPlayerState : public APlayerState
 {
 	GENERATED_BODY()
 
-	// Implement IAbilitySystemInterface
-	class UAbilitySystemComponent* GetAbilitySystemComponent() const override;
+	ATCPlayerState();
 
-protected:
-	UPROPERTY()
-		class UAbilitySystemComponent* AbilitySystemComponent;
+
 };

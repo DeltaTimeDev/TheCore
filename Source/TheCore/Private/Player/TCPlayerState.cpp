@@ -2,8 +2,10 @@
 
 
 #include "Player/TCPlayerState.h"
+#include "AbilitySystem/Core/TCAbilitySystemComponent.h"
 
-UAbilitySystemComponent* ATCPlayerState::GetAbilitySystemComponent() const
+ATCPlayerState::ATCPlayerState()
 {
-	return AbilitySystemComponent;
+
 }
+
