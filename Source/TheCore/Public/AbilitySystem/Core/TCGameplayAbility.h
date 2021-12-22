@@ -60,6 +60,6 @@ public:
 
 	virtual void CancelAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateCancelAbility) override;
 
-
+	class ATCCharacterBase* CharacterBase;
 
 };

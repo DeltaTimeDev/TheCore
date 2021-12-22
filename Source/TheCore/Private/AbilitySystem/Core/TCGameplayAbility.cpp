@@ -2,6 +2,7 @@
 
 
 #include "AbilitySystem/Core/TCGameplayAbility.h"
+#include "Player/TCCharacterBase.h"
 
 UTCGameplayAbility::UTCGameplayAbility()
 {
@@ -12,13 +13,13 @@ UTCGameplayAbility::UTCGameplayAbility()
 
 void UTCGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
-	if (HasAuthorityOrPredictionKey(ActorInfo, &ActivationInfo))
+	CharacterBase = Cast<ATCCharacterBase>(GetAvatarActorFromActorInfo());
+
+	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
 	{
-		if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
-		{
-			EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
-		}
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 	}
+
 }
 
 bool UTCGameplayAbility::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, OUT FGameplayTagContainer* OptionalRelevantTags) const
