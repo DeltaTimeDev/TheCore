@@ -8,11 +8,19 @@
 #include "AbilitySystem/Core/TCGameplayAbility.h"
 #include "TCCharacterBase.generated.h"
 
+UENUM()
+enum ControlType
+{
+	FirstPerson     UMETA(DisplayName = "FirstPerson"),
+	ThridPerson      UMETA(DisplayName = "ThridPerson")
+};
+
 UCLASS()
 class THECORE_API ATCCharacterBase : public ACharacter, public IAbilitySystemInterface
 {
 	GENERATED_BODY()
 
+public:
 	/** Camera boom positioning the camera behind the character */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class USpringArmComponent* CameraBoom;
@@ -21,7 +29,7 @@ class THECORE_API ATCCharacterBase : public ACharacter, public IAbilitySystemInt
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 		class UCameraComponent* FollowCamera;
 
-public:
+
 	// Sets default values for this character's properties
 	ATCCharacterBase();
 
@@ -79,4 +87,27 @@ public:
 	 * @param Rate	This is a normalized rate, i.e. 1.0 means 100% of desired turn rate
 	 */
 	void LookUpAtRate(float Rate);
+
+
+
+
+	////////FIRST PERSON
+
+	/** Pawn mesh: 1st person view (arms; seen only by self) */
+	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
+		class USkeletalMeshComponent* Mesh1P;
+
+	/** First person camera */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+		UCameraComponent* FirstPersonCameraComponent;
+
+
+	//Switch
+	UFUNCTION()
+		void SwitchCamera(ControlType Type);
+
+	UFUNCTION()
+		void SwitchControlType();
+
+	ControlType CurrentControlType = ControlType::ThridPerson;
 };

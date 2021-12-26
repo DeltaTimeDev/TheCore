@@ -9,6 +9,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "DrawDebugHelpers.h"
 
 // Sets default values
 ATCCharacterBase::ATCCharacterBase()
@@ -46,6 +47,22 @@ ATCCharacterBase::ATCCharacterBase()
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
 	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
 
+	// Create a First Person CameraComponent	
+	FirstPersonCameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("FirstPersonCamera"));
+	FirstPersonCameraComponent->SetupAttachment(GetCapsuleComponent());
+	FirstPersonCameraComponent->SetRelativeLocation(FVector(-39.56f, 1.75f, 64.f)); // Position the camera
+	FirstPersonCameraComponent->bUsePawnControlRotation = true;
+
+	// Create a mesh component that will be used when being viewed from a '1st person' view (when controlling this pawn)
+	Mesh1P = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("CharacterMesh1P"));
+	Mesh1P->SetOnlyOwnerSee(true);
+	Mesh1P->SetupAttachment(FirstPersonCameraComponent);
+	Mesh1P->bCastDynamicShadow = false;
+	Mesh1P->CastShadow = false;
+	Mesh1P->SetRelativeRotation(FRotator(1.9f, -19.19f, 5.2f));
+	Mesh1P->SetRelativeLocation(FVector(-0.5f, -4.4f, -155.7f));
+
+
 	// Create ability system component, and set it to be explicitly replicated
 	AbilitySystemComponent = CreateDefaultSubobject<UTCAbilitySystemComponent>(TEXT("AbilitySystemComponent"));
 	AbilitySystemComponent->SetIsReplicated(true);
@@ -75,6 +92,11 @@ void ATCCharacterBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	FVector StartLine = GetActorLocation() + GetActorForwardVector()*100;
+	FVector EndLine = StartLine + FollowCamera->GetComponentRotation().Vector()*400;
+	//DrawDebugDirectionalArrow(GetWorld(), StartLine, EndLine, 120.f, FColor::Red, false, 4, 0, 5.f);
+
+
 }
 
 // Called to bind functionality to input
@@ -95,6 +117,9 @@ void ATCCharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAxis("TurnRate", this, &ATCCharacterBase::TurnAtRate);
 	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
 	PlayerInputComponent->BindAxis("LookUpRate", this, &ATCCharacterBase::LookUpAtRate);
+	
+	PlayerInputComponent->BindAction("SwitchControlType", IE_Pressed, this, &ATCCharacterBase::SwitchControlType);
+
 }
 
 void ATCCharacterBase::PossessedBy(AController* NewController)
@@ -149,17 +174,69 @@ void ATCCharacterBase::LookUpAtRate(float Rate)
 	AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
 }
 
+void ATCCharacterBase::SwitchCamera(ControlType Type)
+{
+	switch (Type)
+	{
+	case FirstPerson:
+		FollowCamera->Deactivate();
+		FirstPersonCameraComponent->Activate();
+		break;
+	case ThridPerson:
+		FollowCamera->Activate();
+		FirstPersonCameraComponent->Deactivate();
+		break;
+	default:
+		break;
+	}
+
+}
+
+void ATCCharacterBase::SwitchControlType()
+{
+	switch (CurrentControlType)
+	{
+	case FirstPerson: //TO ThridPerson !!!!
+
+		CurrentControlType = ControlType::ThridPerson;
+		SwitchCamera(ControlType::ThridPerson);
+		bUseControllerRotationYaw = false;
+		GetMesh()->SetVisibility(true);
+
+		break;
+	case ThridPerson: //TO FirstPerson !!!!
+
+		CurrentControlType = ControlType::FirstPerson;
+		SwitchCamera(ControlType::FirstPerson);
+		bUseControllerRotationYaw = true;
+		GetMesh()->SetVisibility(false);
+
+		break;
+	default:
+		break;
+	}
+
+}
+
 void ATCCharacterBase::MoveForward(float Value)
 {
 	if ((Controller != nullptr) && (Value != 0.0f))
 	{
-		// find out which way is forward
-		const FRotator Rotation = Controller->GetControlRotation();
-		const FRotator YawRotation(0, Rotation.Yaw, 0);
+		if (CurrentControlType == ControlType::ThridPerson)
+		{
+			// find out which way is forward
+			const FRotator Rotation = Controller->GetControlRotation();
+			const FRotator YawRotation(0, Rotation.Yaw, 0);
 
-		// get forward vector
-		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-		AddMovementInput(Direction, Value);
+			// get forward vector
+			const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
+			AddMovementInput(Direction, Value);
+		}
+		else if(CurrentControlType == ControlType::FirstPerson)
+		{
+			AddMovementInput(GetActorForwardVector(), Value);
+		}
+
 	}
 }
 
@@ -167,13 +244,22 @@ void ATCCharacterBase::MoveRight(float Value)
 {
 	if ((Controller != nullptr) && (Value != 0.0f))
 	{
-		// find out which way is right
-		const FRotator Rotation = Controller->GetControlRotation();
-		const FRotator YawRotation(0, Rotation.Yaw, 0);
 
-		// get right vector 
-		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
-		// add movement in that direction
-		AddMovementInput(Direction, Value);
+		if (CurrentControlType == ControlType::ThridPerson)
+		{
+			// find out which way is right
+			const FRotator Rotation = Controller->GetControlRotation();
+			const FRotator YawRotation(0, Rotation.Yaw, 0);
+
+			// get right vector 
+			const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
+			// add movement in that direction
+			AddMovementInput(Direction, Value);
+		}
+		else if (CurrentControlType == ControlType::FirstPerson)
+		{
+			AddMovementInput(GetActorRightVector(), Value);
+		}
+
 	}
 }

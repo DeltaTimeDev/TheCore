@@ -31,7 +31,7 @@ void UTCGameplayAbility::InputReleased(const FGameplayAbilitySpecHandle Handle, 
 {
 	if (ActorInfo != NULL && ActorInfo->AvatarActor != NULL)
 	{
-		CancelAbility(Handle, ActorInfo, ActivationInfo, true);
+		//CancelAbility(Handle, ActorInfo, ActivationInfo, true);
 	}
 }
 

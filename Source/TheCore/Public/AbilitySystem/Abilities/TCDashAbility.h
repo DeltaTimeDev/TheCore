@@ -21,6 +21,13 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UAnimMontage* MontageToPlay;
 
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		float DashDuration = 0.2f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		float DashForce = 2250;
+
 	UFUNCTION()
 		void OnCompleted();
 	UFUNCTION()
