@@ -8,6 +8,8 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "DrawDebugHelpers.h"
 #include "Camera/CameraComponent.h"
+#include "Abilities/Tasks/AbilityTask_WaitTargetData.h"
+#include "Abilities/GameplayAbilityTargetActor.h"
 
 UTCDashAbility::UTCDashAbility()
 {
@@ -19,7 +21,12 @@ void UTCDashAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle, co
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
-	CharacterBase->GetCharacterMovement()->GravityScale = 0;
+
+	//UAbilityTask_WaitTargetData* Wait = UAbilityTask_WaitTargetData::WaitTargetData(this, TEXT("a"), EGameplayTargetingConfirmation::UserConfirmed, SingleLineTrace);
+	//Wait->On
+	//Wait->ReadyForActivation();
+
+	//CharacterBase->GetCharacterMovement()->GravityScale = 0;
 
 	UAbilityTask_PlayMontageAndWait* Task = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this, NAME_None, MontageToPlay, 1, NAME_None, false);
 	Task->OnBlendOut.AddDynamic(this, &UTCDashAbility::OnCompleted);
@@ -29,6 +36,15 @@ void UTCDashAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle, co
 	//Task->EventReceived.AddDynamic(this, &UKBBasicAbility::EventReceived);
 	// ReadyForActivation() is how you activate the AbilityTask in C++. Blueprint has magic from K2Node_LatentGameplayTaskCall that will automatically call ReadyForActivation().
 	Task->ReadyForActivation();
+	
+	
+	//AGameplayAbilityTargetActor* Test;
+	//Test->StartLocation
+
+	//UAbilityTask_WaitTargetData* WaitTargetDataTask = UAbilityTask_WaitTargetData::WaitTargetDataUsingActor(this, NAME_None, EGameplayTargetingConfirmation::UserConfirmed, Test);
+	//WaitTargetDataTask->
+	
+	//WaitTargetDataTask->ReadyForActivation();
 
 
 	FVector PushDirection = CharacterBase->FollowCamera->GetComponentRotation().Vector();
@@ -50,7 +66,7 @@ void UTCDashAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle, co
 	float a = CharacterBase->GetCharacterMovement()->GravityScale;
 	UE_LOG(LogTemp, Warning, TEXT("GetGravityZ %f"), a);
 	
-	//UE_LOG(LogTemp, Warning, TEXT("GetGravityZ %f"), a);
+	UE_LOG(LogTemp, Warning, TEXT("GetGravityZ %f"), a);
 }
 
 void UTCDashAbility::OnCompleted()

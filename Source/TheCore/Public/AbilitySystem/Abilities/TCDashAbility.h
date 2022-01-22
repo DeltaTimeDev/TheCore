@@ -4,7 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystem/Core/TCGameplayAbility.h"
+#include "AbilitySystem/Abilities/TCSingleLineTrace.h"
 #include "TCDashAbility.generated.h"
+
 
 /**
  * 
@@ -21,6 +23,11 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UAnimMontage* MontageToPlay;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		TSubclassOf<ATCSingleLineTrace> SingleLineTrace;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		TSubclassOf<class AGameplayAbilityTargetActor> TargetClass;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		float DashDuration = 0.2f;
