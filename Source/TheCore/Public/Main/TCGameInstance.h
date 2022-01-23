@@ -26,6 +26,16 @@ public :
 
 	void SwitchSpectateMode();
 
+	UFUNCTION(Exec)
+		void StartRecording();
+
+	UFUNCTION()
+		void PlayRecord();
+
+	UFUNCTION(Exec)
+		void StopRecordingAndPlayRecord();
+
+
 private:
 	UPROPERTY(EditAnywhere)
 		ATCTimeManager* TimeManager;

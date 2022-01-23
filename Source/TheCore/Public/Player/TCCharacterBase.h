@@ -110,4 +110,24 @@ public:
 		void SwitchControlType();
 
 	ControlType CurrentControlType = ControlType::ThridPerson;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float LifeTime = 35.0f;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	float RemainLifeTime;
+
+	FTimerHandle LifeTimeHandle;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		float RemainLifeTimeDecreasePeriod = 0.1;
+
+	UFUNCTION(BlueprintCallable)
+		void DecreaseLifeTime();
+
+	UFUNCTION(BlueprintCallable)
+		void KillCharacter();
+	UFUNCTION()
+		void OnDeath();
+
+	void BeginDestroy() override;
 };

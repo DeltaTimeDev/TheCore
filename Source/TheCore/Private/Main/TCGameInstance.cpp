@@ -9,8 +9,7 @@ void UTCGameInstance::Init()
 {
 	if (TimeManagerClass)
 	{
-		TimeManager = GetWorld()->SpawnActor<ATCTimeManager>(TimeManagerClass);
-		TimeManager->StartRecording();
+		TimeManager = GetWorld()->SpawnActor<ATCTimeManager>(TimeManagerClass);		
 	}
 }
 
@@ -23,9 +22,33 @@ void UTCGameInstance::SwitchSpectateMode()
 {
 	TArray<AActor*> FoundActors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ADefaultPawn::StaticClass(), FoundActors);
-	if (FoundActors.Num()>=0)
+	if (FoundActors.Num()>0)
 	{
 		UGameplayStatics::GetPlayerController(GetWorld(), 0)->Possess(Cast<ADefaultPawn>(FoundActors[0]));
 	}
 
+}
+
+void UTCGameInstance::StartRecording()
+{
+	if (TimeManager)
+	{
+		TimeManager->StartRecording();
+	}
+}
+
+void UTCGameInstance::PlayRecord()
+{
+	if (TimeManager)
+	{
+		TimeManager->StartPlay();
+	}
+}
+
+void UTCGameInstance::StopRecordingAndPlayRecord()
+{
+	if (TimeManager)
+	{
+		TimeManager->StartPlay();
+	}
 }

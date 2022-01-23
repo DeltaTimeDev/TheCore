@@ -47,11 +47,18 @@ public:
 	float GetSpeed();
 
 	FTimeFrame SnapShootFrame();
-	void ApplyFrame(FTimeFrame NewFrame);
+	void ApplyFrame(int32 NewFrameIndex);
+	void RecordFrame();
 
 	float Speed=0;
 
 
 	bool IsRecording;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Test Variables")
+		TArray<FTimeFrame> RecordedFrames;
+
+	class UTCGameInstance* GameInstance;
+	class ATCTimeManager* TimeManager;
 		
 };

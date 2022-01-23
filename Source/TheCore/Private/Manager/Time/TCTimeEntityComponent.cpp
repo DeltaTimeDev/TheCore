@@ -2,6 +2,8 @@
 
 
 #include "Manager/Time/TCTimeEntityComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "Main/TCGameInstance.h"
 
 // Sets default values for this component's properties
 UTCTimeEntityComponent::UTCTimeEntityComponent()
@@ -19,7 +21,9 @@ void UTCTimeEntityComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// ...
+	GameInstance = Cast<UTCGameInstance>(UGameplayStatics::GetGameInstance(this));
+	TimeManager = GameInstance->GetTimeManager();
+	TimeManager->Register(this);
 	
 }
 
@@ -44,7 +48,11 @@ void UTCTimeEntityComponent::SetTransform(FTransform NewTransform)
 
 void UTCTimeEntityComponent::SetPhysicsOff()
 {
-	//GetOwner()->
+	UPrimitiveComponent* Root = Cast<UPrimitiveComponent>(GetOwner()->GetRootComponent());
+	if (Root)
+	{
+		Root->SetSimulatePhysics(false);
+	}
 }
 
 void UTCTimeEntityComponent::SetSpeed(float NewSpeed)
@@ -70,9 +78,19 @@ FTimeFrame UTCTimeEntityComponent::SnapShootFrame()
 	return Frame;
 }
 
-void UTCTimeEntityComponent::ApplyFrame(FTimeFrame NewFrame)
+void UTCTimeEntityComponent::ApplyFrame(int32 NewFrameIndex)
 {
-	SetSpeed(NewFrame.EntitySpeed);
-	SetTransform(NewFrame.EntityTransform);
+	if (RecordedFrames.IsValidIndex(NewFrameIndex))
+	{
+		FTimeFrame NewFrame = RecordedFrames[NewFrameIndex];
+		SetSpeed(NewFrame.EntitySpeed);
+		SetTransform(NewFrame.EntityTransform);
+	}
+
+}
+
+void UTCTimeEntityComponent::RecordFrame()
+{
+	RecordedFrames.Add(SnapShootFrame());
 }
 

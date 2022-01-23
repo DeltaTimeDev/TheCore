@@ -18,53 +18,43 @@ ATCTimeManager::ATCTimeManager()
 void ATCTimeManager::BeginPlay()
 {
 	Super::BeginPlay();
-	
+	StartRecording();
 }
 
 // Called every frame
 void ATCTimeManager::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
-
-
-	/*if (bRecording)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Recording.."));
-		RecordedPositions.Add(RecordingCharacters[0]->GetActorLocation());
-	}
-	if (bPlaying)
-	{
-		RecordingCharacters[0]->SetActorLocation(RecordedPositions.Last());
-		RecordedPositions.RemoveAt(RecordedPositions.Num()-1);
-	}*/
-
 }
 
 void ATCTimeManager::StartRecording()
 {
 	TimeSession.TimeInterval = Interval;
-
+	bRecording = true;
 	GetWorldTimerManager().SetTimer(RecordingTimer, this, &ATCTimeManager::RecordFrame, TimeSession.TimeInterval, true);
 
-	TArray<AActor*> FoundActors;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AActor::StaticClass(), FoundActors);
+
+
+
+
+	//TArray<AActor*> FoundActors;
+	//UGameplayStatics::GetAllActorsOfClass(GetWorld(), AActor::StaticClass(), FoundActors);
+	//
+	//for (AActor* FoundActor : FoundActors)
+	//{
+	//	TArray<UActorComponent*> TimeEntityComponents = FoundActor->GetComponentsByClass(UTCTimeEntityComponent::StaticClass());
+
+	//	if (TimeEntityComponents.Num()>0)
+	//	{
+	//		UTCTimeEntityComponent* TimeComponent = Cast<UTCTimeEntityComponent>(TimeEntityComponents[0]);
+
+	//		FTimeEntity* TimeEntity = new FTimeEntity();
+	//		TimeEntity->TimeEntityComponent = TimeComponent;
+	//		TimeEntity->TimeEntityComponent->IsRecording = true;
+	//		TimeSession.TimeEntities.Add(TimeEntity);
+	//	}
+	//}
 	
-	for (AActor* FoundActor : FoundActors)
-	{
-		TArray<UActorComponent*> TimeEntityComponents = FoundActor->GetComponentsByClass(UTCTimeEntityComponent::StaticClass());
-
-		if (TimeEntityComponents.Num()>0)
-		{
-			UTCTimeEntityComponent* TimeComponent = Cast<UTCTimeEntityComponent>(TimeEntityComponents[0]);
-
-			FTimeEntity* TimeEntity = new FTimeEntity();
-			TimeEntity->TimeEntityComponent = TimeComponent;
-			TimeEntity->TimeEntityComponent->IsRecording = true;
-			TimeSession.TimeEntities.Add(TimeEntity);
-		}
-	}
-	bRecording = true;
 }
 
 void ATCTimeManager::StopRecording()
@@ -85,9 +75,9 @@ void ATCTimeManager::StartPlay()
 
 void ATCTimeManager::RecordFrame()
 {
-	for (FTimeEntity* TimeEntity : TimeSession.TimeEntities)
+	for (UTCTimeEntityComponent* TimeComponent : TimeSession.TimeComponents)
 	{
-		TimeEntity->RecordFrame();
+		TimeComponent->RecordFrame();
 	}
 
 	TimeSession.FrameCount++;
@@ -97,11 +87,11 @@ void ATCTimeManager::PlayFrame()
 {
 	if (CurrentPlayingFrame < TimeSession.FrameCount)
 	{
-		for (FTimeEntity* TimeEntity : TimeSession.TimeEntities)
+		for (UTCTimeEntityComponent* TimeComponent : TimeSession.TimeComponents)
 		{
-			TimeEntity->TimeEntityComponent->SetPhysicsOff();
-			TimeEntity->PlayFrame(CurrentPlayingFrame);
-			TimeEntity->TimeEntityComponent->IsRecording = false;
+			TimeComponent->SetPhysicsOff();
+			TimeComponent->ApplyFrame(CurrentPlayingFrame);
+			TimeComponent->IsRecording = false;
 		}
 		CurrentPlayingFrame++;
 	}
@@ -110,4 +100,14 @@ void ATCTimeManager::PlayFrame()
 		GetWorldTimerManager().ClearTimer(PlayTimer);
 	}
 
+}
+
+void ATCTimeManager::Register(UTCTimeEntityComponent* TimeEntityComponent)
+{
+	TimeSession.TimeComponents.Add(TimeEntityComponent);
+}
+
+void ATCTimeManager::Unregister(UTCTimeEntityComponent* TimeEntityComponent)
+{
+	TimeSession.TimeComponents.Remove(TimeEntityComponent);
 }

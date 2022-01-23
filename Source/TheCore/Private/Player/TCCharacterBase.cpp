@@ -10,6 +10,7 @@
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "DrawDebugHelpers.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 // Sets default values
 ATCCharacterBase::ATCCharacterBase()
@@ -81,6 +82,9 @@ ATCCharacterBase::ATCCharacterBase()
 void ATCCharacterBase::BeginPlay()
 {
 	Super::BeginPlay();
+
+	RemainLifeTime = LifeTime;
+	GetWorldTimerManager().SetTimer(LifeTimeHandle, this, &ATCCharacterBase::DecreaseLifeTime, RemainLifeTimeDecreasePeriod, true, 2);
 
 	GetAbilitySystemComponent()->InitAbilityActorInfo(this, this);
 	BindASCInput();
@@ -218,6 +222,37 @@ void ATCCharacterBase::SwitchControlType()
 
 }
 
+void ATCCharacterBase::DecreaseLifeTime()
+{
+	RemainLifeTime -= RemainLifeTimeDecreasePeriod;
+
+	UE_LOG(LogTemp, Warning, TEXT("ATCCharacterBase::DecreaseLifeTime %f"), RemainLifeTime);
+
+	if (RemainLifeTime<=0)
+	{
+		GetWorldTimerManager().ClearTimer(LifeTimeHandle);
+		KillCharacter();
+	}
+}
+
+void ATCCharacterBase::KillCharacter()
+{
+	UE_LOG(LogTemp, Warning, TEXT("ATCCharacterBase::KillCharacter"));
+	OnDeath();
+}
+
+void ATCCharacterBase::OnDeath()
+{
+	UE_LOG(LogTemp, Warning, TEXT("ATCCharacterBase::OnDeath"));
+	GetCharacterMovement()->DisableMovement();
+	GetCharacterMovement()->StopActiveMovement();
+	GetCapsuleComponent()->SetCollisionProfileName(FName("NoCollision"));
+	GetCapsuleComponent()->Deactivate();
+	GetMesh()->SetCollisionProfileName(FName("PhysicsActor"));
+	GetMesh()->SetSimulatePhysics(true);
+	
+}
+
 void ATCCharacterBase::MoveForward(float Value)
 {
 	if ((Controller != nullptr) && (Value != 0.0f))
@@ -263,3 +298,10 @@ void ATCCharacterBase::MoveRight(float Value)
 
 	}
 }
+
+void ATCCharacterBase::BeginDestroy()
+{
+	Super::BeginDestroy();
+	UE_LOG(LogTemp, Warning, TEXT("ATCCharacterBase::BeginDestroy"));
+}
+

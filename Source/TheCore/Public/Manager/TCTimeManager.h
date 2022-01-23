@@ -8,30 +8,6 @@
 #include "TCTimeManager.generated.h"
 
 
-
-USTRUCT(BlueprintType)
-struct FTimeEntity
-{
-	GENERATED_BODY()
-
-
-	UTCTimeEntityComponent* TimeEntityComponent;//Canchange character t entity
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Test Variables")
-		TArray<FTimeFrame> RecordedFrames;
-
-	void RecordFrame()
-	{
-		FTimeFrame Frame = TimeEntityComponent->SnapShootFrame();
-		RecordedFrames.Add(Frame);
-	}
-
-	void PlayFrame(int32 index)
-	{
-		TimeEntityComponent->ApplyFrame(RecordedFrames[index]);
-	}
-};
-
 USTRUCT(BlueprintType)
 struct FTimeSession
 {
@@ -46,7 +22,7 @@ struct FTimeSession
 
 	int32 FrameCount = 0;
 
-	TArray<FTimeEntity*> TimeEntities;
+	TArray<UTCTimeEntityComponent*> TimeComponents;
 };
 
 UCLASS()
@@ -83,6 +59,12 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 		void PlayFrame();
+
+	UFUNCTION()
+		void Register(UTCTimeEntityComponent* TimeEntityComponent);
+
+	UFUNCTION()
+		void Unregister(UTCTimeEntityComponent* TimeEntityComponent);
 
 
 	bool bRecording = false;
